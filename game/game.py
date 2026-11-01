@@ -585,19 +585,6 @@ class Game:
             border_radius=12,
         )
 
-        controls = self.info_font.render(
-            "Move: Arrows | ESC: Quit",
-            True,
-            GRAY,
-        )
-        controls_rect = controls.get_rect(
-            center=(
-                WINDOWS_WIDTH // 2,
-                board_rect.bottom + 18,
-            )
-        )
-        self.screen.blit(controls, controls_rect)
-
         pygame.display.flip()
 
     async def run(self):
