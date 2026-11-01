@@ -194,11 +194,6 @@ class Maze:
         ordinary_count = self.count_pellets()
         power_count = self.count_power_pellets()
 
-        print(f"Maze dimensions: {ROWS} x {COLS}")
-        print(f"Ordinary pellets: {ordinary_count}")
-        print(f"Power pellets: {power_count}")
-        print(f"Total collectibles: {ordinary_count + power_count}")
-
         if power_count != 4:
             raise ValueError(
                 f"Expected 4 power pellets; found {power_count}."
@@ -245,7 +240,7 @@ class Maze:
                 f"{unreachable_pellets[:10]}"
             )
 
-        print("Maze validation passed.")
+       
 
 
 
