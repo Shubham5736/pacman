@@ -586,7 +586,7 @@ class Game:
         )
 
         controls = self.info_font.render(
-            "Move: Arrows/WASD | Z: Debug | ESC: Quit",
+            "Move: Arrows | ESC: Quit",
             True,
             GRAY,
         )
