@@ -47,10 +47,6 @@ class Game:
         self.hud_font = pygame.font.Font(None, 30)
         self.info_font = pygame.font.Font(None, 24)
         self.button_font = pygame.font.Font(None, 32)
-        self.debug_font = pygame.font.Font(None, 20)
-
-        # Debug overlay (toggle with Z)
-        self.debug_mode = False
 
         # Game Status
         self.score = 0
@@ -264,9 +260,6 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
 
-                elif event.key == pygame.K_z:
-                    self.debug_mode = not self.debug_mode
-
                 elif self.game_started:
 
                     movement = {
@@ -315,7 +308,6 @@ class Game:
 
         # Reset Pac-Man position.
         self.player = Player(self.maze.player_spawn)
-        self.debug_mode = False
         self.player.score = current_score
 
         # Reset ghost modes and timers.
@@ -517,110 +509,9 @@ class Game:
             )
             self.screen.blit(hint, hint_rect)
 
-    def draw_debug(self, board_rect):
-        """Display ghost targets, reversal status, directions, and FPS."""
-
-        ghosts = (self.blinky, self.pinky, self.inky, self.clyde)
-
-        for index, ghost in enumerate(ghosts):
-            legend_pos = (
-                board_rect.x,
-                board_rect.bottom + 40 + index * 18,
-            )
-            color = ghost.normal_color
-
-            reverse_status = (
-                "PENDING" if ghost.reverse_pending else "NO"
-            )
-            direction_status = str(ghost.direction)
-
-            # Returning ghosts and frightened ghosts have no target marker.
-            if ghost.returning_home or ghost.mode in ("frightened", "eaten"):
-                state = (
-                    "going home"
-                    if ghost.returning_home
-                    else "random"
-                )
-
-                text = (
-                    f"{ghost.name:7} "
-                    f"mode={ghost.mode:10} "
-                    f"target={state:10} "
-                    f"reverse={reverse_status:7} "
-                    f"dir={direction_status}"
-                )
-
-                label = self.debug_font.render(text, True, color)
-                self.screen.blit(label, legend_pos)
-                continue
-
-            target_row, target_col = ghost.target
-
-            # Targets can be outside the maze, so clamp only the drawing.
-            draw_row = max(0, min(ROWS - 1, target_row))
-            draw_col = max(0, min(COLS - 1, target_col))
-            clamped = (draw_row, draw_col) != (target_row, target_col)
-
-            target_x = (
-                board_rect.x
-                + draw_col * TILE_SIZE
-                + TILE_SIZE // 2
-            )
-            target_y = (
-                board_rect.y
-                + draw_row * TILE_SIZE
-                + TILE_SIZE // 2
-            )
-            ghost_x = board_rect.x + int(ghost.x)
-            ghost_y = board_rect.y + int(ghost.y)
-
-            # Line from the ghost to its target.
-            pygame.draw.line(
-                self.screen,
-                color,
-                (ghost_x, ghost_y),
-                (target_x, target_y),
-                1,
-            )
-
-            # Square marker inside the maze, circle if clamped to the edge.
-            if clamped:
-                pygame.draw.circle(
-                    self.screen,
-                    color,
-                    (target_x, target_y),
-                    7,
-                    2,
-                )
-            else:
-                pygame.draw.rect(
-                    self.screen,
-                    color,
-                    (target_x - 7, target_y - 7, 14, 14),
-                    2,
-                )
-
-            # Text legend below the board.
-            text = (
-                f"{ghost.name:7} "
-                f"mode={ghost.mode:10} "
-                f"target=({target_row}, {target_col}) "
-                f"reverse={reverse_status:7} "
-                f"dir={direction_status}"
-            )
-            label = self.debug_font.render(text, True, color)
-            self.screen.blit(label, legend_pos)
-
-        # FPS readout.
-        fps_label = self.debug_font.render(
-            f"FPS: {self.clock.get_fps():.0f}",
-            True,
-            WHITE,
-        )
-        self.screen.blit(
-            fps_label,
-            (board_rect.x, board_rect.bottom + 40 + 4 * 18),
-        )
+   
+           
+            
 
     def draw(self):
         self.screen.fill(BLACK)
@@ -684,9 +575,7 @@ class Game:
         self.inky.draw(self.screen, board_rect,self.frightened_timer)
         self.clyde.draw(self.screen, board_rect,self.frightened_timer)
 
-        # Debug overlay (Z).
-        if self.debug_mode:
-            self.draw_debug(board_rect)
+      
 
         pygame.draw.rect(
             self.screen,
