@@ -1,0 +1,13 @@
+# Python virtual environments
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Pygbag local cache
+build/web-cache/
+
+# Local IPv4 workaround
+prefer_ipv4.py
