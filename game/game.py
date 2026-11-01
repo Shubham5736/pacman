@@ -48,11 +48,15 @@ class Game:
         self.info_font = pygame.font.Font(None, 24)
         self.button_font = pygame.font.Font(None, 32)
 
+
+
+
         # Game Status
         self.score = 0
         self.level = 1
         self.lives = 3
         self.game_started = False
+        self.paused = False
         self.game_over = False
         self.game_won = False
 
@@ -247,6 +251,7 @@ class Game:
         self.level = 1
         self.game_over = False
         self.game_won = False
+        self.paused = False
         self.game_started = True
 
     def handle_events(self):
@@ -258,9 +263,12 @@ class Game:
             elif event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_ESCAPE:
-                    self.running = False
+                    if self.game_started and not self.game_over:
+                        self.paused = not self.paused
 
-                elif self.game_started:
+
+
+                elif self.game_started and not self.paused:
 
                     movement = {
                         pygame.K_UP: (-1, 0),
@@ -308,6 +316,8 @@ class Game:
 
         # Reset Pac-Man position.
         self.player = Player(self.maze.player_spawn)
+        self.paused = False
+
         self.player.score = current_score
 
         # Reset ghost modes and timers.
@@ -326,7 +336,7 @@ class Game:
     def update(self, dt):
         """Update player, ghosts, collisions, and game state."""
 
-        if not self.game_started:
+        if not self.game_started or self.paused:
             return
 
         # Update Pac-Man first.
@@ -509,9 +519,33 @@ class Game:
             )
             self.screen.blit(hint, hint_rect)
 
-   
-           
-            
+
+
+    def draw_pause_overlay(self):
+        """Draw a translucent pause overlay over the current game screen."""
+
+        overlay = pygame.Surface(
+            (WINDOWS_WIDTH, WINDOWS_HEIGHT),
+            pygame.SRCALPHA,
+        )
+        overlay.fill((0, 0, 0, 170))
+        self.screen.blit(overlay, (0, 0))
+
+        paused_text = self.title_font.render("PAUSED", True, YELLOW)
+        paused_rect = paused_text.get_rect(
+            center=(WINDOWS_WIDTH // 2, WINDOWS_HEIGHT // 2 - 15)
+        )
+        self.screen.blit(paused_text, paused_rect)
+
+        instruction = self.info_font.render(
+            "Press ESC to resume",
+            True,
+            WHITE,
+        )
+        instruction_rect = instruction.get_rect(
+            center=(WINDOWS_WIDTH // 2, WINDOWS_HEIGHT // 2 + 30)
+        )
+        self.screen.blit(instruction, instruction_rect)
 
     def draw(self):
         self.screen.fill(BLACK)
@@ -575,7 +609,7 @@ class Game:
         self.inky.draw(self.screen, board_rect,self.frightened_timer)
         self.clyde.draw(self.screen, board_rect,self.frightened_timer)
 
-      
+
 
         pygame.draw.rect(
             self.screen,
@@ -584,6 +618,22 @@ class Game:
             width=3,
             border_radius=12,
         )
+
+        controls = self.info_font.render(
+            "Move: Arrows/WASD | ESC: Pause/Resume",
+            True,
+            GRAY,
+        )
+        controls_rect = controls.get_rect(
+            center=(
+                WINDOWS_WIDTH // 2,
+                board_rect.bottom + 18,
+            )
+        )
+        self.screen.blit(controls, controls_rect)
+
+        if self.paused:
+            self.draw_pause_overlay()
 
         pygame.display.flip()
 
